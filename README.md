@@ -24,39 +24,26 @@ is not there, FieldNote says what is missing.
 
 ---
 
-## 60-second quickstart (no API keys needed)
+## Quickstart
+
+Needs Python 3.11+. One free LLM key (Gemini, NVIDIA or Groq) is enough to start.
 
 ```bash
 git clone <this repo> fieldnote && cd fieldnote
-make demo          # creates .venv, installs, runs both workspaces on fixtures with the MockClient
-make dashboard     # opens the dashboard on http://localhost:8501
+python -m venv .venv
+.venv/bin/pip install -e .            # Windows: .venv\Scripts\pip install -e .
+cp .env.example .env                  # add your keys (see the table below)
+fieldnote doctor                      # checks configs, keys, every source URL and robots.txt
+fieldnote dashboard                   # http://localhost:8501
 ```
 
-Without `make` (e.g. on Windows):
+The dashboard starts collecting real data immediately: every workspace gets a first full analysis, then
+source checks every 30 minutes. With `make`: `make install` then `make dashboard`.
 
-```bash
-python -m venv .venv && .venv/bin/pip install -e .      # Windows: .venv\Scripts\pip install -e .
-fieldnote demo
-fieldnote dashboard
-```
-
-`fieldnote demo` runs the full pipeline for both shipped workspaces on bundled **fixture data** (fictional
-brands, `.example` links), then seeds the action tracker, answers a sample question, and runs the evals.
-It writes:
-
-* `out/<workspace>/briefs/daily_<date>.md|.html|.telegram.txt`: the daily brief
-* `out/<workspace>/memos/weekly_<date>.pdf`: the weekly decision memo (plus charts)
-* `out/<workspace>/outbox/`: what would have been sent (dry run)
-* `out/eval_report.md`: the eval report
-* `data/demo.db`: the database the dashboard reads
-
-## Going live
-
-```bash
-cp .env.example .env        # add the keys you have; each is optional
-fieldnote doctor            # validates configs, keys, every source URL and robots.txt status
-fieldnote dashboard         # http://localhost:8501, live data, kept current automatically
-```
+**Just want to look around first?** `fieldnote demo` runs the whole pipeline on bundled fixture data
+(fictional brands, `.example` links, no keys, no network) and `fieldnote dashboard --demo` shows it, labelled
+as demo data on every page. It writes the brief, the weekly PDF memo, a dry-run outbox and the eval report
+under `out/`, and `data/demo.db`.
 
 **Live data.** The dashboard shows live data only (the fixture dataset appears only with
 `fieldnote dashboard --demo`, labelled on every page). While it runs, a scheduler keeps every active
@@ -75,6 +62,12 @@ when sources were last checked and when the next check is due, and the Overview'
 newest items. `Check sources now` and `Run full analysis` on the Workspaces page start a run immediately.
 In production, run the web app with `FIELDNOTE_SCHEDULER=off` and one `fieldnote live` worker (the
 docker-compose file does this); a workspace never runs twice at once, even across processes.
+
+### Keys
+
+Everything is optional except one LLM key. Reddit needs an approved "script" app
+(reddit.com/prefs/apps, plus Reddit's API access request); YouTube needs a Data API v3 key from
+console.cloud.google.com. Google News RSS is skipped because its robots.txt disallows crawlers.
 
 | Credential | Enables | Without it |
 |---|---|---|
@@ -230,15 +223,16 @@ Step-by-step: [docs/adding-a-workspace.md](docs/adding-a-workspace.md).
 | Evals and README table | `evals/*` |
 | Full pipeline, idempotent runs, retention | `pipeline.py`, `db/repo.py` |
 | CLI, doctor, export | `cli.py`, `doctor.py`, `exporter.py` |
-| Dashboard (10 insight pages + Workspaces: create, run now with live progress, edit, import, archive; optional password) | `dashboard/*` |
+| Live scheduler: source checks, periodic analysis, daily delivery, housekeeping | `live/scheduler.py`, `dashboard/runner.py` |
+| Web dashboard (React + TypeScript): 10 insight pages + Workspaces, live updates over Server-Sent Events, optional password | `web/`, `web/server.py`, `web/live_api.py` |
 
 ## CLI
 
 `fieldnote init` · `doctor` · `workspace templates|new "..."|new --template ID|list|show|import|archive|restore` ·
-`collect` · `process` ·
+`collect` · `process` · `pulse` · `live` ·
 `run [--workspace X] [--dry-run] [--offline] [--weekly] [--all-workspaces]` · `ask "..."` · `notes add FILE|-` ·
 `actions list|done|drop|update|export` · `remind [--all-workspaces]` · `brief daily|weekly [--all-workspaces]` ·
-`eval [--all] [--live-llm] [--update-readme]` · `dashboard` · `demo` · `export` · `purge [--all-workspaces]`.
+`eval [--all] [--live-llm] [--update-readme]` · `dashboard [--demo] [--no-scheduler]` · `demo` · `export` · `purge [--all-workspaces]`.
 `--all-workspaces` covers every active workspace, from files and from the database.
 Exit codes: 0 success, 2 partial (some stages degraded), 1 failure.
 
@@ -296,7 +290,7 @@ What is measured:
 ## Tests and quality
 
 * `make test` (pytest), `make lint` (ruff), `make typecheck` (mypy), `make cov`.
-* 270 tests (Python 3.11 and 3.12): config validation, secret redaction, dedupe, change detection and noise suppression, metric math, scoring and
+* 276 tests (Python 3.11 and 3.12): config validation, secret redaction, dedupe, change detection and noise suppression, metric math, scoring and
   tie-breaks, critic stages 1 and 2, claim schemas, date resolution, reminders, delivery dry-run and
   Telegram escaping, prompt-injection fixtures, retention, collectors against fake APIs (robots.txt,
   rate limits, ETags, no author data), the Anthropic client's retry/fallback logic with a fake SDK, the Gemini/NVIDIA client (message translation,
@@ -307,7 +301,8 @@ What is measured:
   robots-blocked, stale and JavaScript-only sources, review edits), the workspace registry (file vs database
   precedence, archive/restore, read-only disks), GDELT search and relevance filtering, the private-address
   guard (including redirects), the best-first model chain and its cool-downs, every library template for
-  every region, and dashboard flows through Streamlit's AppTest.
+  every region, the live scheduler (pulse runs, schedule clock, run selection) and the live-only dashboard
+  context.
 * Coverage: **88% overall**; scoring 100%, reminders 100%, builder 82–99%, workspace registry 91%,
   extractor 93%, change detection 91%, critic 86%, collectors 66–97%.
 
@@ -315,13 +310,14 @@ What is measured:
 
 **Dashboard.** Any host that runs a container or a Python process works:
 
-* *Docker*: `docker compose up --build` starts the dashboard on :8501 and a scheduler container that runs
-  the daily pipeline, reminders and retention (and the weekly memo on Mondays).
+* *Docker*: `docker compose up --build` starts the dashboard on :8501 and a `worker` container
+  (`fieldnote live`) that keeps every workspace current: source checks, analysis, the daily brief,
+  reminders, retention and the Monday memo.
 * *Render / Fly.io*: deploy the `Dockerfile` as a web service on port 8501; set `DATABASE_URL` to a managed
   Postgres so data survives restarts, and add your keys as secrets.
 * *Plain Python host*: `pip install .` then `fieldnote dashboard --host 0.0.0.0 --port 8501`; the built UI ships
-  inside the package (`src/fieldnote/web/static`), so the host needs no Node. Run the pipeline elsewhere
-  (GitHub Actions) against the same `DATABASE_URL`.
+  inside the package (`src/fieldnote/web/static`), so the host needs no Node. The scheduler runs inside the
+  same process unless `FIELDNOTE_SCHEDULER=off`.
 
 **Dashboard UI.** The dashboard is a React + TypeScript app in `web/` served by a small Starlette JSON API
 (`src/fieldnote/web/server.py`) over the same database the CLI uses. To change the UI: `make web` rebuilds it
@@ -335,7 +331,8 @@ runs pick them up even when the container's `workspaces/` folder is read-only or
 permanent in the repository, download its YAML (*This workspace* tab) or run
 `fieldnote workspace show <id> > workspaces/<id>.yaml` and commit it.
 
-**Scheduled pipeline.**
+**Without a long-running server.** The live scheduler needs a process that stays up. If you can only run
+jobs on a timer, use one of these instead (data then refreshes once a day, not every 30 minutes):
 
 * *GitHub Actions*: `.github/workflows/daily.yml` (07:00 IST) runs every workspace, reminders and retention;
   `weekly.yml` renders and delivers the memo on Mondays. Add secrets for the keys you have (for free LLM
@@ -372,8 +369,8 @@ _Placeholders: add your own captures here._
 | Weekly PDF memo | `docs/img/memo.png` |
 | Demo GIF (Ask FieldNote) | `docs/img/demo.gif` |
 
-To capture them: run `fieldnote demo`, then `fieldnote dashboard --demo`; take screenshots at a 1440x900
-window in both light and dark themes (Settings, Theme). For the GIF, record the Ask FieldNote page with
+To capture them: run `fieldnote dashboard` on live data (or `--demo` for fixtures); take screenshots at a
+1440x900 window in both light and dark themes (sidebar, Theme). For the GIF, record the Ask FieldNote page with
 any screen recorder (e.g. Peek, ScreenToGif, or macOS Screenshot) while asking "What changed in competitor
 pricing this week?", and keep it under 10 MB. Export page 1 of `out/ev_two_wheelers_india/memos/*.pdf` to
 PNG for the memo image.
@@ -381,5 +378,3 @@ PNG for the memo image.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-#   F i e l d N o t e  
- 
