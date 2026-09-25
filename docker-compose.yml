@@ -1,0 +1,43 @@
+# docker compose up --build
+# app:        FieldNote dashboard (web app + JSON API) on http://localhost:8501
+# worker:     live collection for every workspace (`fieldnote live`): frequent source checks, periodic analysis,
+#             the daily brief, reminders, retention and the Monday weekly memo.
+# Put keys in .env. Without an LLM key the analysis falls back to the rule-based MockClient; delivery stays dry-run
+# until Telegram or SMTP credentials are set.
+# For hosted/persistent storage set DATABASE_URL (Postgres) in .env; otherwise SQLite lives in the volume.
+services:
+  app:
+    build: .
+    image: fieldnote:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      FIELDNOTE_SCHEDULER: "off"
+    ports:
+      - "8501:8501"
+    volumes:
+      - fieldnote-data:/app/data
+      - fieldnote-out:/app/out
+    restart: unless-stopped
+
+  worker:
+    # Live collection: pulses every FIELDNOTE_PULSE_MINUTES, analysis every FIELDNOTE_ANALYSIS_HOURS, the daily
+    # brief after FIELDNOTE_DELIVER_AT_HOUR (workspace-local), reminders, retention and the Monday weekly memo.
+    image: fieldnote:latest
+    depends_on:
+      - app
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      TZ: "${TZ:-Asia/Kolkata}"
+    volumes:
+      - fieldnote-data:/app/data
+      - fieldnote-out:/app/out
+    command: ["fieldnote", "live"]
+    restart: unless-stopped
+
+volumes:
+  fieldnote-data:
+  fieldnote-out:

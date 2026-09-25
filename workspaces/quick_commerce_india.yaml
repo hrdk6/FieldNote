@@ -1,0 +1,103 @@
+# FieldNote workspace: Quick commerce, India
+# Created 2026-09-24 with the workspace builder (draft: gemini+nvidia) from:
+#   Quick-commerce grocery delivery in India: Blinkit, Zepto, Swiggy Instamart, BigBasket
+# Sources verified 2026-09-24: 3 kept, 10 dropped, 6 unverified.
+# Review and edit freely; `fieldnote doctor -w <workspace>` re-checks every URL.
+# news.search_country: 'worldwide' disables the country filter; null derives it from region.
+workspace: quick_commerce_india
+display_name: Quick commerce, India
+sector: quick-commerce grocery delivery apps
+region: India
+timezone: Asia/Kolkata
+language_hints: [en]
+focal_company: null
+perspective: market-level observer
+competitors:
+- name: Blinkit
+  aliases: [Grofers]
+  pages: []
+- name: Zepto
+  aliases: []
+  pages: []
+- name: Swiggy Instamart
+  aliases: [Instamart]
+  pages: []
+- name: BigBasket
+  aliases: []
+  pages: []
+keywords:
+- quick commerce
+- q-commerce
+- grocery delivery
+- instant delivery
+- online groceries
+- quick-commerce grocery delivery apps
+aspects:
+- delivery_speed
+- product_availability
+- price
+- app_experience
+- customer_service
+- delivery_charges
+aspect_keywords:
+  delivery_speed: [fast, quick, minutes, on time, late, speed]
+  product_availability: [stock, out of stock, items missing, selection, variety, inventory]
+  price: [cost, expensive, cheap, discount, offer, pricing, deal]
+  app_experience: [app, interface, user friendly, glitch, crash, bug]
+  customer_service: [support, help, issue, resolution, complaint, agent]
+  delivery_charges: [delivery fee, shipping cost, charges, fee]
+sources:
+  news:
+    search_queries: [Blinkit, Zepto, Instamart, BigBasket, quick commerce, grocery delivery]
+    search_country: india
+    search_language: english
+    filter_feeds_by_relevance: true
+    rss_feeds: ['https://entrackr.com/rss', 'https://inc42.com/feed/', 'https://techcrunch.com/feed/']
+    google_news_queries: []
+    lookback_days: 7
+    max_items_per_feed: 25
+    fetch_full_text: true
+  reddit:
+    subreddits: [bangalore, delhi, india, indianews, mumbai]
+    search_terms:
+    - Blinkit review
+    - Zepto review
+    - Instamart review
+    - BigBasket review
+    - quick commerce experience
+    max_posts_per_run: 150
+  youtube:
+    search_terms: [Blinkit India review, Zepto India review, Swiggy Instamart review]
+    max_videos: 10
+    max_comments_per_video: 50
+connectors: []
+claim_vs_reported:
+- metric: delivery_time
+  unit: minutes
+  unit_aliases: [min]
+  keywords: [delivery time, delivery in, minutes, eta]
+  claimed_extract: regex
+  reported_extract: llm
+  min_n: 8
+  plausible_range: [5.0, 60.0]
+scoring:
+  weights: {market_size: 0.3, competitor_gap: 0.25, evidence_strength: 0.3, effort: 0.15}
+  top_n_in_brief: 5
+output: {anonymize_entities: false, brief_max_words: 350, telegram_max_chars: 4000}
+delivery:
+  channels: [telegram, email]
+retention_days: {posts: 180, documents: 365}
+limits: {max_llm_cost_per_run_usd: 3.0, per_host_delay_seconds: 2.0}
+
+# Dropped during verification:
+#   site https://blinkit.com: no RSS/Atom feed found
+#   site https://timesofindia.indiatimes.com: no RSS/Atom feed found
+#   site https://www.bigbasket.com: robots.txt disallows FieldNoteBot
+#   site https://www.livemint.com: no RSS/Atom feed found
+#   site https://www.swiggy.com/instamart: no RSS/Atom feed found
+#   site https://www.zeptonow.com: no RSS/Atom feed found
+#   page https://blinkit.com/about: robots.txt disallows FieldNoteBot
+#   page https://www.bigbasket.com/about-us/: robots.txt disallows FieldNoteBot
+#   page https://www.swiggy.com/newsroom: HTTP 404
+#   page https://www.zeptonow.com/careers: too little readable text (0 chars; the page may need
+#   JavaScript)

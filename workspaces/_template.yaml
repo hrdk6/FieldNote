@@ -1,0 +1,138 @@
+# =============================================================================================
+# FieldNote workspace template
+# =============================================================================================
+# Easiest: `fieldnote workspace new "<what to track>"` or the dashboard's Workspaces page drafts and
+# verifies a workspace for you. To write one by hand, copy this file to workspaces/<your_slug>.yaml
+# (or run `fieldnote init -w <your_slug>`), edit it,
+# then run `fieldnote doctor -w <your_slug>` to validate it and check every URL.
+# Everything sector- or company-specific lives here; FieldNote's code never needs to change.
+# Files starting with "_" are ignored by `fieldnote run --all-workspaces`.
+
+# Unique slug: lowercase letters, digits and underscores. Must match the file name.
+workspace: my_workspace
+display_name: "My market, My region"          # shown in briefs and the dashboard
+sector: "the product category you track"      # used in prompts and brief headers
+region: "India"                               # also picks default news locale (India, USA, UK, ...)
+timezone: "Asia/Kolkata"                      # IANA name; due dates and brief dates use it
+language_hints: ["en"]                        # add "hi-en" if posts may be Hinglish
+
+# Optional. Leave null for a market-level view; set a company name to write briefs for that company.
+focal_company: null
+# The viewpoint briefs are written from, e.g. "new-entrant challenger brand" or "category leader".
+perspective: "market-level observer"
+
+# Competitors are market data. Aliases are matched as whole words (aliases of 3 characters or less
+# are matched case-sensitively). Pages are fetched politely (robots.txt, rate limits) and diffed.
+competitors:
+  - name: "Example Brand"
+    aliases: ["ExampleCo", "Example Model X"]
+    pages:
+      # kind: pricing | product | news | dealers
+      # render: true needs the optional Playwright extra (pip install 'fieldnote[render]').
+      # selector: optional CSS selector that scopes price extraction on this page.
+      - {url: "https://www.example.com/pricing", kind: pricing, render: false, selector: null}
+  - name: "Second Brand"
+    aliases: []
+    pages: []
+
+# Keywords steer searches and relevance.
+keywords: ["category keyword", "important topic"]
+
+# Customer-voice aspects (snake_case). Posts are tagged with one of these, or "other".
+aspects: ["price", "quality", "service", "delivery"]
+# Optional words that signal each aspect (used by the offline/heuristic tagger and Ask).
+aspect_keywords:
+  price: ["price", "cost", "expensive", "cheap", "discount"]
+  quality: ["quality", "defect", "broken", "build"]
+  service: ["service", "support", "repair", "customer care"]
+  delivery: ["delivery", "shipping", "delayed", "booking"]
+
+sources:
+  news:
+    # Topic search through the open GDELT news index (https://www.gdeltproject.org; no key needed).
+    # Use short headline phrases or distinctive names, each at least 3 characters. One combined query
+    # runs per collection; hits that mention none of your entities, aliases or keywords are dropped.
+    search_queries: ["category keyword", "Example Brand"]
+    search_country: null      # GDELT country name ("india", "unitedstates"); null = from region; "worldwide" = no filter
+    search_language: null     # GDELT language name ("english", "hindi"); null = from language_hints
+    # Google News RSS search queries (region-aware). Note: news.google.com's robots.txt currently
+    # disallows crawlers on /rss, so FieldNote skips these; keep or remove as you prefer.
+    google_news_queries: []
+    # RSS/Atom feeds. Only add feeds you have checked; `fieldnote doctor` verifies each one.
+    rss_feeds: []
+    filter_feeds_by_relevance: false   # true = keep only items mentioning your entities/keywords (broad feeds)
+    lookback_days: 7
+    max_items_per_feed: 25
+    fetch_full_text: true            # fetch article pages (robots.txt permitting) for full text
+  reddit:                            # official API; needs REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET
+    subreddits: []
+    search_terms: []
+    max_posts_per_run: 200
+  youtube:                           # Data API v3; needs YOUTUBE_API_KEY
+    search_terms: []
+    max_videos: 15
+    max_comments_per_video: 60
+    quota_units_per_run: 1500        # search costs 100 units, comments 1 unit
+
+# Optional metrics connectors. Download data manually from public dashboards or industry releases,
+# respecting their terms; FieldNote never automates against sources whose terms forbid it.
+connectors: []
+#  - type: csv_file
+#    name: monthly_sales               # identifier
+#    label: sales                      # word used in briefs ("tracked sales")
+#    path: "data/monthly_sales.csv"    # relative to the project directory; must stay inside it
+#    mapping: {entity: "brand", region: "state", period: "month", value: "units"}
+#    unit: "units/month"
+#    source_url: "https://where-the-data-came-from.example"
+#  - type: http_json
+#    name: api_sales
+#    url: "https://api.example.org/sales.json"
+#    records_path: "data.rows"
+#    mapping: {entity: "brand.name", region: "state", period: "month", value: "units"}
+#    unit: "units/month"
+#    source_url: "https://api.example.org"
+
+# Claimed vs owner-reported comparisons (e.g. range in km, battery life in hours).
+claim_vs_reported: []
+#  - metric: "battery_life"
+#    unit: "hours"
+#    unit_aliases: ["hrs", "hour"]
+#    keywords: ["battery", "screen-on", "backup"]
+#    claimed_extract: "regex"          # regex | llm (claimed value from competitor pages)
+#    reported_extract: "llm"           # llm | regex (first-hand values from customer posts)
+#    min_n: 10                         # fewer reports => flagged low-confidence, never stated as fact
+#    plausible_range: [1, 30]
+
+# Deterministic Opportunity Board scoring. Weights must sum to 1.0.
+scoring:
+  weights: {market_size: 0.30, competitor_gap: 0.25, evidence_strength: 0.30, effort: 0.15}
+  top_n_in_brief: 5
+  evidence_half_life_days: 14        # recency decay for evidence strength
+  min_evidence_per_finding: 2        # fewer verified evidence claims => "thin evidence" (demoted)
+  stale_after_days: 21               # findings not seen for this long are marked stale
+
+output:
+  anonymize_entities: false          # true: brief prose uses "Market Leader", "Challenger A"...
+  brief_max_words: 350
+  telegram_max_chars: 4000
+
+change_detection:
+  min_changed_chars: 20              # smaller text diffs are ignored (currency/figure changes always count)
+  min_change_ratio: 0.01
+  ignore_patterns: []                # regexes for page lines to ignore, e.g. "(?i)^offer of the day"
+
+reminders:
+  due_within_days: 2
+
+# Delivery happens only for channels listed here AND configured in the environment.
+delivery:
+  channels: []                       # e.g. ["telegram", "email"]
+
+retention_days: {posts: 180, documents: 365}
+limits:
+  max_llm_cost_per_run_usd: 3.00     # the run stops calling the LLM at this budget and keeps verified output
+  per_host_delay_seconds: 2.0
+  researcher_max_steps: 6
+  max_claims_per_run: 60
+  request_timeout_seconds: 20
+  max_documents_per_source: 60

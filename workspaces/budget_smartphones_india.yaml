@@ -1,0 +1,114 @@
+# FieldNote workspace: budget smartphones in India (proves reusability: same code, different config).
+# Competitor names appear here only as market data. Offline/demo runs swap in the fictional
+# brands from fixtures/budget_smartphones_india/manifest.json.
+workspace: budget_smartphones_india
+display_name: "Budget smartphones, India"
+sector: "budget smartphones (under ₹15,000)"
+region: "India"
+timezone: "Asia/Kolkata"
+language_hints: ["en", "hi-en"]
+focal_company: null
+perspective: "value-focused smartphone brand planning its next budget launch"
+
+competitors:
+  - name: "Xiaomi"
+    aliases: ["Redmi", "Xiaomi India"]
+    pages: []
+  - name: "Samsung"
+    aliases: ["Galaxy M", "Galaxy F", "Galaxy A"]
+    pages:
+      - {url: "https://www.samsung.com/in/smartphones/galaxy-m/", kind: product, render: false, selector: null}
+      - {url: "https://www.samsung.com/in/smartphones/galaxy-f/", kind: product, render: false, selector: null}
+  - name: "Realme"
+    aliases: ["Narzo", "realme"]
+    pages:
+      - {url: "https://www.realme.com/in/", kind: product, render: false, selector: null}
+  - name: "Vivo"
+    aliases: ["iQOO"]
+    pages:
+      - {url: "https://www.vivo.com/in/products/y", kind: product, render: false, selector: null}
+      - {url: "https://www.iqoo.com/in", kind: product, render: false, selector: null}
+  - name: "Motorola"
+    aliases: ["Moto G"]
+    pages: []
+  - name: "Poco"
+    aliases: ["POCO"]
+    pages: []
+  - name: "Lava"
+    aliases: ["Lava Mobiles", "Lava Agni", "Lava Blaze"]
+    pages:
+      - {url: "https://www.lavamobiles.com/", kind: product, render: false, selector: null}
+  - name: "Infinix"
+    aliases: ["Infinix Hot", "Infinix Note"]
+    pages:
+      - {url: "https://www.infinixmobility.com/", kind: product, render: false, selector: null}
+
+keywords: ["budget smartphone", "5G phone under 15000", "smartphone price cut", "phone launch India", "software updates"]
+aspects: ["battery_life", "camera", "performance", "display", "software_updates", "price", "service"]
+aspect_keywords:
+  battery_life: ["battery", "screen-on", "screen on", "sot", "backup", "charging", "drain", "heating", "hot"]
+  camera: ["camera", "photos", "night mode", "portrait", "selfie", "video"]
+  performance: ["lag", "laggy", "gaming", "slow", "smooth", "processor", "ram", "heats"]
+  display: ["display", "screen", "green line", "brightness", "refresh rate", "amoled"]
+  software_updates: ["update", "updates", "android version", "security patch", "bloatware", "os", "bugs", "crash"]
+  price: ["price", "priced", "value for money", "offer", "discount", "expensive", "cheap", "emi"]
+  service: ["service centre", "service center", "customer care", "repair", "spare parts", "warranty"]
+
+sources:
+  news:
+    # Topic search through the open GDELT news index (no key), filtered to Indian English-language sources.
+    search_queries: ["budget smartphone", "smartphone launch", "Redmi", "Realme", "Galaxy M", "Poco"]
+    # news.google.com/robots.txt currently disallows /rss for crawlers; FieldNote honours that and
+    # skips these queries at runtime. Kept for portability; see `fieldnote doctor`.
+    google_news_queries:
+      - "budget smartphone launch India"
+      - "smartphone price cut India"
+      - "smartphone shipments India"
+    rss_feeds:
+      - "https://www.gsmarena.com/rss-news-reviews.php3"
+      - "https://beebom.com/feed/"
+      - "https://www.fonearena.com/blog/feed"
+      - "https://feeds.feedburner.com/gadgets360-latest"
+      - "https://www.gizbot.com/rss/gizbot-fb.xml"
+  reddit:
+    subreddits: ["IndianGaming", "india", "Android", "PickAnAndroidForMe"]
+    search_terms: ["budget phone India", "Redmi", "Realme", "Galaxy M", "Poco", "under 15k"]
+    max_posts_per_run: 200
+  youtube:
+    search_terms: ["best phone under 15000", "budget 5G phone review India"]
+    max_videos: 15
+    max_comments_per_video: 60
+
+connectors:
+  - type: csv_file
+    name: region_shipments
+    label: shipments
+    path: "data/smartphone_shipments.csv"
+    mapping: {entity: "brand", region: "region", period: "month", value: "units"}
+    unit: "units/month"
+    source_url: "user-supplied export from a public industry release"
+
+claim_vs_reported:
+  - metric: "battery_life"
+    unit: "hours"
+    unit_aliases: ["hrs", "hour", "hr"]
+    keywords: ["battery", "screen-on", "screen on", "sot", "backup"]
+    claimed_extract: "regex"
+    reported_extract: "llm"
+    min_n: 8
+    plausible_range: [1, 30]
+
+scoring:
+  weights: {market_size: 0.30, competitor_gap: 0.25, evidence_strength: 0.30, effort: 0.15}
+  top_n_in_brief: 5
+
+output:
+  anonymize_entities: false
+  brief_max_words: 350
+  telegram_max_chars: 4000
+
+delivery:
+  channels: ["telegram", "email"]
+
+retention_days: {posts: 180, documents: 365}
+limits: {max_llm_cost_per_run_usd: 3.00, per_host_delay_seconds: 2.0}

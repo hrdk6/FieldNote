@@ -1,0 +1,45 @@
+# Secrets
+.env
+*.pem
+service-account*.json
+
+# Runtime data and outputs
+data/
+out/
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Web UI (the built bundle in src/fieldnote/web/static is kept so pip installs need no Node)
+web/node_modules/
+
+# Local tooling
+.claude/
+.streamlit/secrets.toml
+
+# Design tooling scratch (keep PRODUCT.md, DESIGN.md and the surface brief)
+.impeccable/config.local.json
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/decision-*.json

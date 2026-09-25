@@ -1,0 +1,58 @@
+name: Weekly decision memo
+
+# Mondays 02:30 UTC (08:00 IST), after the daily run. Renders the PDF memo per workspace and delivers it
+# (dry-run outbox when delivery secrets are absent).
+on:
+  schedule:
+    - cron: "30 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fieldnote-pipeline
+  cancel-in-progress: false
+
+jobs:
+  memo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      SMTP_FROM: ${{ secrets.SMTP_FROM }}
+      SMTP_TO: ${{ secrets.SMTP_TO }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install ".[postgres]"
+      - name: Restore database
+        if: ${{ env.DATABASE_URL == '' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: data/fieldnote.db
+          key: fieldnote-db-weekly-${{ github.run_id }}
+          restore-keys: fieldnote-db-
+      - name: Render and deliver memos
+        run: |
+          # Every active workspace: files in workspaces/ plus ones created in a hosted dashboard
+          # (stored in the shared DATABASE_URL).
+          fieldnote brief weekly --all-workspaces --deliver
+      - name: Upload memos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldnote-weekly-${{ github.run_id }}
+          path: out/*/memos/
+          retention-days: 30
+          if-no-files-found: ignore

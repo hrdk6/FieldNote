@@ -1,0 +1,203 @@
+/* FieldNote: the exhibit deck. Paper ground, navy ink, hairline rules, one rust highlight.
+   Status markings are reserved: verified, thin evidence, disputed, stale, fixture. */
+
+:root {
+  color-scheme: light;
+  --paper: #ffffff;
+  --paper-2: #f3f5f8;
+  --paper-3: #e9edf2;
+  --paper-raised: #ffffff;
+  --ink: #1a2433;
+  --ink-strong: #0e2a47;
+  --ink-2: #475467;
+  --ink-3: #667085;
+  --rule: #d9dee5;
+  --rule-soft: #eaedf1;
+  --rule-strong: #0e2a47;
+
+  --navy: #0e2a47;
+  --steel: #2f6f8f;
+  --steel-2: #8fb0c4;
+  --steel-3: #c9d9e3;
+  --context: #b9c0c9;
+  --rust: #b3452c;
+  --rust-soft: rgba(179, 69, 44, 0.1);
+
+  --action: #0e2a47;
+  --action-hover: #173d63;
+  --action-ink: #ffffff;
+  --focus: #2f6f8f;
+
+  --verified: #1e7a4e;
+  --verified-soft: rgba(30, 122, 78, 0.1);
+  --thin: #95600d;
+  --thin-soft: rgba(197, 138, 27, 0.14);
+  --disputed: #8e1f3a;
+  --disputed-soft: rgba(142, 31, 58, 0.09);
+  --stale: #667085;
+  --fixture: #7a4d05;
+  --fixture-bg: #fbf1dc;
+  --fixture-hatch: rgba(173, 116, 17, 0.12);
+
+  --ins: rgba(30, 122, 78, 0.16);
+  --del: rgba(179, 69, 44, 0.14);
+
+  --c1: #2f6f8f;
+  --c2: #d08a2e;
+  --c3: #4f8a5b;
+  --c4: #7a5c9e;
+  --c5: #3a9fb4;
+  --c6: #a0616a;
+  --c7: #8a8f3a;
+  --c8: #5b6fb5;
+
+  --crit-1: #0e2a47;
+  --crit-2: #2f6f8f;
+  --crit-3: #7fa6bf;
+  --crit-4: #c3d4df;
+
+  --div-neg: #b3452c;
+  --div-mid: #f1f2f3;
+  --div-pos: #2f6f8f;
+
+  --shadow-pop: 0 12px 32px -8px rgba(14, 42, 71, 0.22), 0 2px 6px rgba(14, 42, 71, 0.08);
+  --scrim: rgba(14, 42, 71, 0.04);
+
+  --font: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-15: 0.9375rem;
+  --fs-17: 1.0625rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+  --fs-40: 2.5rem;
+
+  --r: 2px;
+  --r-2: 4px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 120ms;
+  --t: 200ms;
+  --t-slow: 320ms;
+
+  --sidebar-w: 256px;
+  --content-max: 1200px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0f1620;
+    --paper-2: #0a1017;
+    --paper-3: #18212d;
+    --paper-raised: #141d29;
+    --ink: #dfe5ec;
+    --ink-strong: #f1f4f8;
+    --ink-2: #a8b3c1;
+    --ink-3: #8794a5;
+    --rule: #26313f;
+    --rule-soft: #1c2531;
+    --rule-strong: #c7d3e0;
+    --navy: #c7d3e0;
+    --steel: #6aa6c6;
+    --steel-2: #3f6a82;
+    --steel-3: #2a4556;
+    --context: #4a5463;
+    --rust: #e3805f;
+    --rust-soft: rgba(227, 128, 95, 0.13);
+    --action: #d6e2ef;
+    --action-hover: #ffffff;
+    --action-ink: #0e2a47;
+    --focus: #6aa6c6;
+    --verified: #5cc18d;
+    --verified-soft: rgba(92, 193, 141, 0.12);
+    --thin: #e0ae4f;
+    --thin-soft: rgba(224, 174, 79, 0.14);
+    --disputed: #ec7f99;
+    --disputed-soft: rgba(236, 127, 153, 0.12);
+    --stale: #8794a5;
+    --fixture: #f0c36b;
+    --fixture-bg: #231b0c;
+    --fixture-hatch: rgba(240, 195, 107, 0.07);
+    --ins: rgba(92, 193, 141, 0.2);
+    --del: rgba(227, 128, 95, 0.2);
+    --c1: #5fa2c6;
+    --c2: #e29a41;
+    --c3: #6fae7c;
+    --c4: #a386c9;
+    --c5: #57bdd1;
+    --c6: #c98891;
+    --c7: #b0b55a;
+    --c8: #8a9ee0;
+    --crit-1: #d6e2ef;
+    --crit-2: #6aa6c6;
+    --crit-3: #4b86a6;
+    --crit-4: #5d7285;
+    --div-neg: #e3805f;
+    --div-mid: #1b2430;
+    --div-pos: #6aa6c6;
+    --shadow-pop: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --scrim: rgba(255, 255, 255, 0.03);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0f1620;
+  --paper-2: #0a1017;
+  --paper-3: #18212d;
+  --paper-raised: #141d29;
+  --ink: #dfe5ec;
+  --ink-strong: #f1f4f8;
+  --ink-2: #a8b3c1;
+  --ink-3: #8794a5;
+  --rule: #26313f;
+  --rule-soft: #1c2531;
+  --rule-strong: #c7d3e0;
+  --navy: #c7d3e0;
+  --steel: #6aa6c6;
+  --steel-2: #3f6a82;
+  --steel-3: #2a4556;
+  --context: #4a5463;
+  --rust: #e3805f;
+  --rust-soft: rgba(227, 128, 95, 0.13);
+  --action: #d6e2ef;
+  --action-hover: #ffffff;
+  --action-ink: #0e2a47;
+  --focus: #6aa6c6;
+  --verified: #5cc18d;
+  --verified-soft: rgba(92, 193, 141, 0.12);
+  --thin: #e0ae4f;
+  --thin-soft: rgba(224, 174, 79, 0.14);
+  --disputed: #ec7f99;
+  --disputed-soft: rgba(236, 127, 153, 0.12);
+  --stale: #8794a5;
+  --fixture: #f0c36b;
+  --fixture-bg: #231b0c;
+  --fixture-hatch: rgba(240, 195, 107, 0.07);
+  --ins: rgba(92, 193, 141, 0.2);
+  --del: rgba(227, 128, 95, 0.2);
+  --c1: #5fa2c6;
+  --c2: #e29a41;
+  --c3: #6fae7c;
+  --c4: #a386c9;
+  --c5: #57bdd1;
+  --c6: #c98891;
+  --c7: #b0b55a;
+  --c8: #8a9ee0;
+  --crit-1: #d6e2ef;
+  --crit-2: #6aa6c6;
+  --crit-3: #4b86a6;
+  --crit-4: #5d7285;
+  --div-neg: #e3805f;
+  --div-mid: #1b2430;
+  --div-pos: #6aa6c6;
+  --shadow-pop: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --scrim: rgba(255, 255, 255, 0.03);
+}

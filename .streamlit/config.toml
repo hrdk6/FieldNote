@@ -1,0 +1,6 @@
+# FieldNote dashboard theme. Light and dark both work; the viewer can switch in Settings.
+[theme]
+primaryColor = "#2a78d6"
+
+[browser]
+gatherUsageStats = false

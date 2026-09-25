@@ -1,0 +1,83 @@
+name: Daily brief
+
+# 01:30 UTC = 07:00 IST. Uses repository secrets when present; without them the pipeline runs with the
+# MockClient, skips social collectors and writes dry-run output (nothing is sent).
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fieldnote-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # free LLM tiers are rate limited; a run can take a while
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      FIELDNOTE_LLM: ${{ vars.FIELDNOTE_LLM || 'auto' }}
+      FIELDNOTE_MODEL: ${{ vars.FIELDNOTE_MODEL || 'claude-sonnet-5' }}
+      FIELDNOTE_FAST_MODEL: ${{ vars.FIELDNOTE_FAST_MODEL || 'claude-haiku-4-5-20251001' }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+      REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      SMTP_FROM: ${{ secrets.SMTP_FROM }}
+      SMTP_TO: ${{ secrets.SMTP_TO }}
+      FIELDNOTE_CONTACT_EMAIL: ${{ vars.FIELDNOTE_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install ".[postgres]"
+      # Without DATABASE_URL, persist the SQLite database between runs with the Actions cache.
+      - name: Restore database
+        if: ${{ env.DATABASE_URL == '' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: data/fieldnote.db
+          key: fieldnote-db-${{ github.run_id }}
+          restore-keys: fieldnote-db-
+      - name: Doctor
+        run: fieldnote doctor --no-network || true
+      - name: Run all workspaces
+        run: fieldnote run --all-workspaces
+      - name: Reminders and retention
+        if: always()
+        run: |
+          fieldnote remind --all-workspaces || true
+          fieldnote purge --all-workspaces || true
+      - name: Save database
+        if: ${{ always() && env.DATABASE_URL == '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: data/fieldnote.db
+          key: fieldnote-db-${{ github.run_id }}
+      - name: Upload briefs and database
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldnote-daily-${{ github.run_id }}
+          path: |
+            out/
+            data/fieldnote.db
+          retention-days: 14
+          if-no-files-found: ignore

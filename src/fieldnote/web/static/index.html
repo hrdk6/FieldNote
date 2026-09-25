@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>FieldNote</title>
+    <script>
+      try {
+        var t = localStorage.getItem("fn-theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+        var m = localStorage.getItem("fn-motion");
+        if (m === "full" || m === "reduced") document.documentElement.dataset.motion = m;
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="/assets/index-C_yp4yuu.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DEdwOnQ1.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

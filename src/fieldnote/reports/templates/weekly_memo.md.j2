@@ -1,0 +1,61 @@
+# Weekly decision memo: {{ d.display_name }}
+
+Week {{ d.week_start }} to {{ d.week_end }} · Perspective: {{ d.perspective }} · Generated {{ d.generated_at }}
+{% if d.fixture %}
+
+> **FIXTURE DATA.** {{ d.fixture_notice }}
+{% endif %}
+
+## What happened
+{% for f in d.findings %}
+
+### {{ f.rank }}. {{ f.title }}
+
+`{{ f.category|capitalize }}` · score {{ '%.2f'|format(f.total) }}{% if f.status == 'demoted' %} · thin evidence{% endif %}
+
+<!-- fn:section kind=finding id={{ f.id }} -->
+{{ f.what_happened }}
+
+Why it matters [Analysis]: {{ f.why_it_matters }}
+
+What we should do: {{ f.recommended_action }}
+
+How we execute: {{ f.how_to_execute }}
+
+{% for e in f.evidence %}
+- [{{ e.label[0] }}{{ e.n }}] [{{ e.label }}] {{ e.text }} ([{{ e.source_name or 'source' }}]({{ e.url }}), {{ e.published }})
+{% endfor %}
+<!-- fn:end -->
+{% endfor %}
+
+<!-- fn:section kind=system name=changes -->
+## Competitor page changes
+{% for c in d.changes %}
+- {{ c.date }}: {{ c.summary }}
+{% else %}
+- None this week.
+{% endfor %}
+<!-- fn:end -->
+
+<!-- fn:section kind=system name=board -->
+## Opportunity Board
+| # | Finding | Type | Market | Gap | Evidence | Effort | Total |
+|---|---|---|---|---|---|---|---|
+{% for b in d.board %}
+| {{ b.rank }} | {{ b.title }} | {{ b.category }} | {{ '%.2f'|format(b.market_size) }} | {{ '%.2f'|format(b.competitor_gap) }} | {{ '%.2f'|format(b.evidence_strength) }} | {{ '%.2f'|format(b.effort) }} | {{ '%.3f'|format(b.total) }} |
+{% endfor %}
+<!-- fn:end -->
+
+## Methodology
+{% for m in d.methodology %}
+- {{ m }}
+{% endfor %}
+
+## Limitations
+{% for m in d.limitations %}
+- {{ m }}
+{% endfor %}
+
+<!-- fn:section kind=system name=footer -->
+Verification: {{ d.verification.checked }} claims checked, {{ d.verification.verified_pct }}% verified, {{ d.verification.rejected }} rejected. AI-assisted; sources linked; estimates labeled.
+<!-- fn:end -->

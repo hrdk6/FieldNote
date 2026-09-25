@@ -1,0 +1,277 @@
+{
+ "_notice": "FIXTURE DATA - hand-labeled synthetic meeting notes (fictional people) for the action-item extraction eval.",
+ "notes": [
+  {
+   "file": "note_01.md",
+   "note_date": "2026-09-16",
+   "items": [
+    {
+     "description": "prepare an on-road price comparison for the top five models",
+     "owner": "Priya",
+     "due_date": "2026-09-18"
+    },
+    {
+     "description": "check dealer inventory levels in Pune and Bengaluru",
+     "owner": "Arjun",
+     "due_date": "2026-09-22"
+    },
+    {
+     "description": "update the FAQ page on range claims",
+     "owner": "Unassigned",
+     "due_date": null
+    },
+    {
+     "description": "draft the customer email on the new warranty terms",
+     "owner": "Meera",
+     "due_date": "2026-09-25"
+    }
+   ]
+  },
+  {
+   "file": "note_02.md",
+   "note_date": "2026-09-14",
+   "items": [
+    {
+     "description": "benchmark the new variant's range claims against our test data",
+     "owner": "Rohan",
+     "due_date": "2026-09-19"
+    },
+    {
+     "description": "schedule three customer interviews in Hyderabad",
+     "owner": "Sana",
+     "due_date": "2026-09-18"
+    },
+    {
+     "description": "share the battery supplier quote",
+     "owner": "Dev",
+     "due_date": "2026-09-15"
+    },
+    {
+     "description": "look into the charging complaints from the forum",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_03.md",
+   "note_date": "2026-09-18",
+   "items": [
+    {
+     "description": "finalise the Q4 marketing budget",
+     "owner": "Anika",
+     "due_date": "2026-09-30"
+    },
+    {
+     "description": "review the service partner contracts",
+     "owner": "Vikram",
+     "due_date": "2026-09-25"
+    },
+    {
+     "description": "send the board update",
+     "owner": "Vikram",
+     "due_date": "2026-09-21"
+    }
+   ]
+  },
+  {
+   "file": "note_04.md",
+   "note_date": "2026-09-21",
+   "items": [
+    {
+     "description": "call the top 10 dealers about the festive stock",
+     "owner": "Neha",
+     "due_date": "2026-09-23"
+    },
+    {
+     "description": "fix the lead-tracking sheet",
+     "owner": "Imran",
+     "due_date": null
+    },
+    {
+     "description": "share the weekly enquiry numbers with the team",
+     "owner": "Pooja",
+     "due_date": "2026-09-28"
+    }
+   ]
+  },
+  {
+   "file": "note_05.md",
+   "note_date": "2026-09-10",
+   "items": [
+    {
+     "description": "send the revised MoU to the charging partner",
+     "owner": "Karan",
+     "due_date": "2026-09-24"
+    },
+    {
+     "description": "confirm the pilot locations",
+     "owner": "Leela",
+     "due_date": "2026-09-18"
+    },
+    {
+     "description": "revisit the revenue share model",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_06.md",
+   "note_date": "2026-09-22",
+   "items": [
+    {
+     "description": "analyse the service complaints and propose fixes",
+     "owner": "Farah",
+     "due_date": "2026-09-30"
+    },
+    {
+     "description": "set up a callback line for delayed deliveries",
+     "owner": "Joel",
+     "due_date": "2026-09-23"
+    },
+    {
+     "description": "draft the refund policy FAQ",
+     "owner": "Ishaan",
+     "due_date": "2026-09-24"
+    },
+    {
+     "description": "update the delivery tracker template",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_07.md",
+   "note_date": "2026-09-15",
+   "items": [
+    {
+     "description": "ship the OTA fix for the navigation crash",
+     "owner": "Sid",
+     "due_date": "2026-09-23"
+    },
+    {
+     "description": "write the test plan for the battery thermal update",
+     "owner": "Tara",
+     "due_date": null
+    },
+    {
+     "description": "present the benchmark results at the next review",
+     "owner": "Omar",
+     "due_date": "2026-10-01"
+    },
+    {
+     "description": "clean up the old dashboards",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_08.md",
+   "note_date": "2026-09-17",
+   "items": [
+    {
+     "description": "model the margin impact of a 5% price cut",
+     "owner": "Meera",
+     "due_date": "2026-09-21"
+    },
+    {
+     "description": "run a dealer survey on price sensitivity",
+     "owner": "Priya",
+     "due_date": "2026-09-25"
+    },
+    {
+     "description": "circulate the survey questions",
+     "owner": "Arjun",
+     "due_date": "2026-09-18"
+    }
+   ]
+  },
+  {
+   "file": "note_09.md",
+   "note_date": "2026-09-11",
+   "items": [
+    {
+     "description": "brief the agency on the festive campaign",
+     "owner": "Zoya",
+     "due_date": "2026-09-16"
+    },
+    {
+     "description": "get legal sign-off on the comparative ads",
+     "owner": "Aman",
+     "due_date": null
+    },
+    {
+     "description": "send the media plan",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_10.md",
+   "note_date": "2026-09-23",
+   "items": [
+    {
+     "description": "audit spare-parts stock at the three busiest service centres",
+     "owner": "Kabir",
+     "due_date": "2026-09-25"
+    },
+    {
+     "description": "follow up with the logistics vendor on delayed consignments",
+     "owner": "Neha",
+     "due_date": "2026-09-23"
+    },
+    {
+     "description": "publish the updated service SLA on the website",
+     "owner": "Unassigned",
+     "due_date": null
+    }
+   ]
+  },
+  {
+   "file": "note_11.md",
+   "note_date": "2026-09-24",
+   "items": [
+    {
+     "description": "compile the owner-reported range data into a one-pager",
+     "owner": "Sana",
+     "due_date": "2026-09-28"
+    },
+    {
+     "description": "check whether the reported range figures include winter conditions",
+     "owner": "Rohan",
+     "due_date": "2026-09-27"
+    },
+    {
+     "description": "set up the survey panel",
+     "owner": "Tara",
+     "due_date": "2026-10-05"
+    }
+   ]
+  },
+  {
+   "file": "note_12.md",
+   "note_date": "2026-09-09",
+   "items": [
+    {
+     "description": "share the Q3 cost report",
+     "owner": "Vikram",
+     "due_date": "2026-09-11"
+    },
+    {
+     "description": "review supplier payment terms",
+     "owner": "Anika",
+     "due_date": "2026-09-30"
+    },
+    {
+     "description": "send the FX exposure summary",
+     "owner": "Vikram",
+     "due_date": "2026-09-14"
+    }
+   ]
+  }
+ ]
+}

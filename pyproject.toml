@@ -1,0 +1,114 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldnote"
+version = "1.0.0"
+description = "FieldNote: a configurable, config-driven AI chief-of-staff for market and competitor intelligence."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "FieldNote contributors" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "typer>=0.12",
+  "rich>=13.7",
+  "pydantic>=2.6",
+  "pyyaml>=6.0",
+  "python-dotenv>=1.0",
+  "python-dateutil>=2.9",
+  "sqlalchemy>=2.0.25",
+  "anthropic>=0.49",
+  "requests>=2.31",
+  "feedparser>=6.0",
+  "trafilatura>=1.8",
+  "beautifulsoup4>=4.12",
+  "lxml>=5.0",
+  "praw>=7.7",
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scikit-learn>=1.4",
+  "rank-bm25>=0.2.2",
+  "rapidfuzz>=3.6",
+  "jinja2>=3.1",
+  "reportlab>=4.1",
+  "matplotlib>=3.8",
+  "streamlit>=1.37",
+  "plotly>=5.20",
+]
+
+[project.optional-dependencies]
+render = ["playwright>=1.44"]
+embeddings = ["sentence-transformers>=2.7"]
+sheets = ["gspread>=6.0", "google-auth>=2.29"]
+postgres = ["psycopg[binary]>=3.1"]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "types-PyYAML",
+  "types-requests",
+  "types-python-dateutil",
+  "pre-commit>=3.7",
+]
+
+[project.scripts]
+fieldnote = "fieldnote.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldnote"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["fieldnote"]
+omit = ["src/fieldnote/dashboard/*"]
+
+[tool.coverage.report]
+show_missing = false
+skip_covered = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "S", "RUF"]
+ignore = [
+  "E501",   # line length is handled by `ruff format`; long URLs/strings are allowed
+  "S101",   # assert is fine in tests
+  "S311",   # non-crypto randomness is fine (seeded, eval corruption only)
+  "S608",   # we never build SQL from strings; false positives on f-strings in prompts
+  "RUF001", "RUF002", "RUF003",  # unicode punctuation in prose is intentional
+  "B008",   # typer uses function calls in defaults
+  "S603", "S607",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "B"]
+"src/fieldnote/dashboard/*" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/fieldnote"]
+ignore_missing_imports = true
+warn_unused_ignores = false
+warn_redundant_casts = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+strict_equality = true
+plugins = ["pydantic.mypy"]
+exclude = ["src/fieldnote/dashboard/"]

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FieldNote daily brief</title>
+<style>
+  :root { --bg:#fcfcfb; --fg:#0b0b0b; --muted:#52514e; --line:#e6e5e1; --accent:#2a78d6; --risk:#d03b3b; --opp:#0ca30c; --chip:#f0efec; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1a1a19; --fg:#ffffff; --muted:#c3c2b7; --line:#383835; --accent:#3987e5; --chip:#2a2a28; } }
+  body { background:var(--bg); color:var(--fg); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; margin:0; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:28px 0 8px; border-top:1px solid var(--line); padding-top:16px; }
+  h3 { font-size:16px; margin:0 0 6px; }
+  .meta, .foot { color:var(--muted); font-size:13px; }
+  .banner { background:var(--chip); border-left:4px solid var(--risk); padding:8px 12px; margin:12px 0; font-size:14px; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:12px 0; }
+  .chip { display:inline-block; font-size:12px; padding:1px 8px; border-radius:999px; background:var(--chip); margin-right:6px; }
+  .risk { color:var(--risk); } .opportunity { color:var(--opp); }
+  .tag { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-right:4px; }
+  ul { padding-left:20px; } li { margin:4px 0; } a { color:var(--accent); }
+</style>
+</head>
+<body><main>
+<h1>FieldNote daily brief: {{ d.display_name }}</h1>
+<div class="meta">{{ d.date }} · Perspective: {{ d.perspective }} · Run #{{ d.run_id }}</div>
+{% if d.fixture %}<div class="banner"><strong>FIXTURE DATA.</strong> {{ d.fixture_notice }}</div>{% endif %}
+{% if d.anonymized %}<div class="banner">Entity names are replaced with neutral labels; real names are in the evidence appendix.</div>{% endif %}
+
+<h2>Top findings</h2>
+{% if not d.findings %}<p>No findings passed verification in this run.</p>{% endif %}
+{% for f in d.findings %}
+<div class="card">
+  <h3>{{ f.rank }}. {{ f.title }}</h3>
+  <span class="chip {{ f.category }}">{{ f.category|capitalize }}</span><span class="chip">score {{ '%.2f'|format(f.total) }}</span>{% if f.status == 'demoted' %}<span class="chip">thin evidence</span>{% endif %}{% if f.disputed %}<span class="chip">disputed</span>{% endif %}
+  <p><span class="tag">What happened · {{ f.what_label }}</span>{{ f.what_happened }}</p>
+  <p><span class="tag">Why it matters · Analysis</span>{{ f.why_it_matters }}</p>
+  <div><span class="tag">Evidence</span>
+  <ul>{% for e in f.evidence %}
+    {% if d.anonymized %}<li><span class="tag">{{ e.label }}</span>see appendix E{{ e.n }}</li>
+    {% else %}<li><span class="tag">{{ e.label }}</span>{{ e.text }} (<a href="{{ e.url }}">{{ e.source_name or 'source' }}</a>, {{ e.published }})</li>{% endif %}
+  {% endfor %}{% if f.counter_note %}<li><span class="tag">Counter-evidence</span>"{{ f.counter_note }}"</li>{% endif %}</ul></div>
+  <p><span class="tag">Recommended action</span>{{ f.recommended_action }}</p>
+  <p><span class="tag">How to execute</span>{{ f.how_to_execute }}</p>
+</div>
+{% endfor %}
+
+<h2>What changed</h2>
+<ul>{% for c in d.changes %}<li><strong>{{ c.competitor }}</strong> ({{ c.kind }}): {{ c.summary }} <a href="{{ c.url }}">page</a></li>{% else %}<li>No significant competitor page changes this run.</li>{% endfor %}</ul>
+
+<h2>Customer voice</h2>
+<ul>{% for t in d.themes %}<li>{{ t.label }}{% if t.emerging %} <strong>(emerging)</strong>{% endif %}: {{ t.size }} posts ({{ '%+d'|format(t.delta) }} vs previous window), sentiment {{ '%+.2f'|format(t.sentiment) }}</li>{% else %}<li>Not enough tagged customer posts for themes this run.</li>{% endfor %}
+{% for c in d.cvr_notes %}<li><span class="tag">Estimate{% if c.low %} · low confidence{% endif %}</span>{{ c.entity }} owner-reported {{ c.metric }}: median {{ c.median }} {{ c.unit }} vs claimed {{ c.claimed }} {{ c.unit }} (n={{ c.n }})</li>{% endfor %}</ul>
+
+{% if d.movers %}<h2>Metric movers ({{ d.metric_label }})</h2>
+<ul>{% for m in d.movers %}<li>{{ m.entity }}: {{ '%+.1f'|format(m.pct_change) }}% month over month, {{ '%.1f'|format(m.share) }}% share in {{ m.period }}</li>{% endfor %}</ul>{% endif %}
+
+<h2>Actions due</h2>
+<ul>{% for a in d.actions_due %}<li>{{ a.description }} ({{ a.owner }}, due {{ a.due }}{% if a.overdue %}, <strong>overdue</strong>{% endif %})</li>{% else %}<li>Nothing due in the next few days.</li>{% endfor %}</ul>
+
+{% if d.anonymized and d.appendix %}<h2>Evidence appendix (real names)</h2>
+<ul>{% for e in d.appendix %}<li>E{{ e.n }} <span class="tag">{{ e.label }}</span>{{ e.text }} (<a href="{{ e.url }}">{{ e.source_name or 'source' }}</a>, {{ e.published }})</li>{% endfor %}</ul>{% endif %}
+
+<p class="foot">Verification: {{ d.verification.checked }} claims checked · {{ d.verification.verified_pct }}% verified · {{ d.verification.rejected }} rejected · {{ d.verification.unverified }} withheld · run cost ${{ '%.2f'|format(d.cost_usd) }} · generated {{ d.generated_at }}. AI-assisted; sources linked; estimates labeled.</p>
+</main></body>
+</html>

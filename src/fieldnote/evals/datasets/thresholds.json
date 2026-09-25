@@ -1,0 +1,9 @@
+{
+  "_comment": "Eval pass thresholds. Adversarial target applies to the deterministic + mock critic path; the live-LLM rate is reported alongside.",
+  "citation_validity": 0.95,
+  "adversarial_catch_rate": 0.90,
+  "number_consistency": 0.99,
+  "extraction_precision": 0.80,
+  "extraction_recall": 0.80,
+  "max_run_cost_usd": 3.0
+}

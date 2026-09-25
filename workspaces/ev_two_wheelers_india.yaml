@@ -1,0 +1,118 @@
+# FieldNote workspace: electric two-wheelers in India (deep demo workspace).
+# Competitor names appear here only as market data. Offline/demo runs swap in the fictional
+# brands from fixtures/ev_two_wheelers_india/manifest.json.
+workspace: ev_two_wheelers_india
+display_name: "EV two-wheelers, India"
+sector: "electric two-wheelers"
+region: "India"
+timezone: "Asia/Kolkata"
+language_hints: ["en", "hi-en"]
+focal_company: null
+perspective: "new-entrant challenger brand"
+
+competitors:
+  - name: "Ola Electric"
+    aliases: ["Ola S1", "Ola Electric Mobility"]
+    pages:
+      - {url: "https://www.olaelectric.com/s1pro-gen3", kind: product, render: false, selector: null}
+  - name: "Ather Energy"
+    aliases: ["Ather", "Ather 450", "Ather Rizta", "Rizta"]
+    pages:
+      - {url: "https://www.atherenergy.com/450", kind: product, render: false, selector: null}
+      - {url: "https://www.atherenergy.com/rizta", kind: product, render: false, selector: null}
+  - name: "TVS Motor"
+    aliases: ["TVS iQube", "iQube"]
+    pages:
+      - {url: "https://www.tvsmotor.com/electric-scooters/tvs-iqube", kind: product, render: false, selector: null}
+  - name: "Bajaj Chetak"
+    aliases: ["Chetak", "Bajaj Auto"]
+    pages:
+      - {url: "https://www.chetak.com/", kind: product, render: false, selector: null}
+  - name: "Hero Vida"
+    aliases: ["Vida", "Vida V2", "Hero MotoCorp"]
+    pages:
+      - {url: "https://www.vidaworld.com/", kind: product, render: false, selector: null}
+  - name: "Ampere"
+    aliases: ["Greaves Electric Mobility", "Ampere Nexus"]
+    pages:
+      - {url: "https://ampere-electric.com/", kind: product, render: false, selector: null}
+  - name: "Honda"
+    aliases: ["Activa e", "Honda QC1"]
+    pages: []
+  - name: "River"
+    aliases: ["River Indie"]
+    pages:
+      - {url: "https://www.rideriver.com/indie", kind: product, render: false, selector: null}
+
+keywords: ["electric scooter", "e-scooter", "EV two-wheeler", "range", "subsidy", "charging", "PM E-DRIVE", "battery"]
+aspects: ["range", "price", "service", "software", "build_quality", "delivery", "charging", "battery"]
+aspect_keywords:
+  range: ["km", "mileage", "per charge", "full charge", "real world range"]
+  price: ["price", "priced", "cost", "expensive", "cheap", "subsidy", "on-road", "offer", "emi", "discount"]
+  service: ["service centre", "service center", "workshop", "after-sales", "customer care", "spare parts", "parts", "repair"]
+  software: ["app", "software", "ota", "update", "bug", "buggy", "navigation", "bluetooth", "dashboard", "connectivity"]
+  build_quality: ["build quality", "rattle", "rattles", "panels", "paint", "fit and finish", "premium"]
+  delivery: ["delivery", "delivered", "booking", "booked", "waiting period", "dispatch"]
+  charging: ["charger", "chargers", "charging", "fast charging", "charging station"]
+  battery: ["battery", "cell", "warranty", "degradation", "kwh"]
+
+sources:
+  news:
+    # Topic search through the open GDELT news index (no key). Filtered to Indian, English-language
+    # sources (derived from region and language_hints; override with search_country/search_language).
+    search_queries: ["electric scooter", "electric two-wheeler", "Ather", "Ola Electric", "TVS iQube", "Bajaj Chetak"]
+    # Note: news.google.com/robots.txt currently disallows /rss for all crawlers, so FieldNote skips
+    # these queries at runtime (robots.txt is always honoured). They are kept so the workspace works
+    # unchanged if that policy changes; `fieldnote doctor` reports their status.
+    google_news_queries:
+      - "electric scooter India"
+      - "EV two-wheeler sales India"
+      - "electric two-wheeler subsidy"
+    rss_feeds:
+      - "https://www.rushlane.com/feed"
+      - "https://evreporter.com/feed/"
+      - "https://auto.economictimes.indiatimes.com/rss/two-wheelers"
+  reddit:
+    subreddits: ["indianbikes", "CarsIndia", "bangalore", "electricvehicles"]
+    search_terms: ["electric scooter", "Ather", "Ola S1", "iQube", "Chetak", "EV range"]
+    max_posts_per_run: 200
+  youtube:
+    search_terms: ["electric scooter review India", "EV scooter long term review"]
+    max_videos: 15
+    max_comments_per_video: 60
+
+connectors:
+  # Drop a CSV downloaded manually from a public dashboard or industry release (respect its terms)
+  # at data/registrations.csv to enable metrics. Without it, metrics are simply skipped.
+  - type: csv_file
+    name: state_registrations
+    label: registrations
+    path: "data/registrations.csv"
+    mapping: {entity: "brand", region: "state", period: "month", value: "units"}
+    unit: "units/month"
+    source_url: "https://vahan.parivahan.gov.in/vahan4dashboard/"
+
+claim_vs_reported:
+  - metric: "range"
+    unit: "km"
+    unit_aliases: ["kms", "kilometres", "kilometers"]
+    keywords: ["range", "per charge", "full charge", "mileage"]
+    claimed_extract: "regex"
+    reported_extract: "llm"
+    min_n: 10
+    plausible_range: [20, 300]
+
+scoring:
+  weights: {market_size: 0.30, competitor_gap: 0.25, evidence_strength: 0.30, effort: 0.15}
+  top_n_in_brief: 5
+
+output:
+  anonymize_entities: false
+  brief_max_words: 350
+  telegram_max_chars: 4000
+
+delivery:
+  channels: ["telegram", "email"]
+
+retention_days: {posts: 180, documents: 365}
+limits: {max_llm_cost_per_run_usd: 3.00, per_host_delay_seconds: 2.0}

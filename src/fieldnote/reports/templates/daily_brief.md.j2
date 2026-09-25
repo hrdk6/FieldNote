@@ -1,0 +1,114 @@
+# FieldNote daily brief: {{ d.display_name }}
+
+{{ d.date }} · Perspective: {{ d.perspective }} · Run #{{ d.run_id }}
+{% if d.fixture %}
+
+> **FIXTURE DATA.** {{ d.fixture_notice }}
+{% endif %}
+{% if d.anonymized %}
+
+> Entity names in this brief are replaced with neutral labels. Real names and links are in the evidence appendix.
+{% endif %}
+
+## Top findings
+{% if not d.findings %}
+
+No findings passed verification in this run. See "What changed" below for raw page changes.
+{% endif %}
+{% for f in d.findings %}
+
+<!-- fn:section kind=finding id={{ f.id }} -->
+### {{ f.rank }}. {{ f.title }}
+
+`{{ f.category|capitalize }}` · score {{ '%.2f'|format(f.total) }}{% if f.status == 'demoted' %} · thin evidence{% endif %}{% if f.disputed %} · disputed{% endif %}
+
+
+**What happened** [{{ f.what_label }}] {{ f.what_happened }}
+
+**Why it matters** [Analysis] {{ f.why_it_matters }}
+
+**Evidence**
+{% for e in f.evidence %}
+{% if d.anonymized %}
+- [{{ e.label }}] see appendix [E{{ e.n }}]
+{% else %}
+- [{{ e.label }}] {{ e.text }}{% if e.show_quote %} "{{ e.quote }}"{% endif %} ([{{ e.source_name or 'source' }}]({{ e.url }}), {{ e.published }}){% if e.extra_sources %} +{{ e.extra_sources }} more{% endif %}
+
+{% endif %}
+{% endfor %}
+{% if f.counter_note %}
+- Counter-evidence found: "{{ f.counter_note }}"
+{% endif %}
+
+**Recommended action** {{ f.recommended_action }}
+
+**How to execute** {{ f.how_to_execute }}
+<!-- fn:end -->
+{% endfor %}
+
+<!-- fn:section kind=system name=changes -->
+## What changed
+{% if d.changes %}
+{% for c in d.changes %}
+- **{{ c.competitor }}** ({{ c.kind }}): {{ c.summary }} [page]({{ c.url }})
+{% endfor %}
+{% else %}
+- No significant competitor page changes this run.
+{% endif %}
+<!-- fn:end -->
+
+<!-- fn:section kind=system name=voice -->
+## Customer voice
+{% if d.themes %}
+{% for t in d.themes %}
+- {{ t.label }}{% if t.emerging %} **(emerging)**{% endif %}: {{ t.size }} posts ({{ '%+d'|format(t.delta) }} vs previous window), sentiment {{ '%+.2f'|format(t.sentiment) }}
+{% endfor %}
+{% else %}
+- Not enough tagged customer posts for themes this run.
+{% endif %}
+{% for c in d.cvr_notes %}
+- [Estimate{% if c.low %}, low confidence{% endif %}] {{ c.entity }} owner-reported {{ c.metric }}: median {{ c.median }} {{ c.unit }} vs claimed {{ c.claimed }} {{ c.unit }} (n={{ c.n }}){% if c.low %}; too few reports to compare reliably{% endif %}
+
+{% endfor %}
+<!-- fn:end -->
+{% if d.movers %}
+
+<!-- fn:section kind=system name=metrics -->
+## Metric movers ({{ d.metric_label }})
+{% for m in d.movers %}
+- {{ m.entity }}: {{ '%+.1f'|format(m.pct_change) }}% month over month, {{ '%.1f'|format(m.share) }}% share in {{ m.period }}
+{% endfor %}
+<!-- fn:end -->
+{% endif %}
+
+<!-- fn:section kind=system name=actions -->
+## Actions due
+{% if d.actions_due %}
+{% for a in d.actions_due %}
+- {{ a.description }} ({{ a.owner }}, due {{ a.due }}{% if a.overdue %}, **overdue**{% endif %})
+{% endfor %}
+{% else %}
+- Nothing due in the next few days.
+{% endif %}
+<!-- fn:end -->
+{% if d.disagreements %}
+
+## Source disagreements
+{% for x in d.disagreements %}
+- {{ x }}
+{% endfor %}
+{% endif %}
+{% if d.anonymized and d.appendix %}
+
+<!-- fn:section kind=appendix -->
+## Evidence appendix (real names)
+{% for e in d.appendix %}
+- [E{{ e.n }}] [{{ e.label }}] {{ e.text }} ([{{ e.source_name or 'source' }}]({{ e.url }}), {{ e.published }})
+{% endfor %}
+<!-- fn:end -->
+{% endif %}
+
+---
+<!-- fn:section kind=system name=footer -->
+Verification: {{ d.verification.checked }} claims checked · {{ d.verification.verified_pct }}% verified · {{ d.verification.rejected }} rejected · {{ d.verification.unverified }} withheld · run cost ${{ '%.2f'|format(d.cost_usd) }} · generated {{ d.generated_at }}. AI-assisted; sources linked; estimates labeled.
+<!-- fn:end -->
